@@ -23,7 +23,7 @@ env:
   GKE_ZONE: us-central1-c   # TODO: update to cluster zone
   DEPLOYMENT_NAME: gke-test # TODO: update to deployment name
   IMAGE: flash-hello-app
-  PATH_CICD: cicd/python-flask-docker-hello-world
+  PATH_TO_APP: cicd/python-flask-docker-hello-world
 
 jobs:
   setup-build-publish-deploy:
@@ -60,7 +60,7 @@ jobs:
           --tag "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
-          ${{ env.PATH_CICD }}/.
+          ${{ env.PATH_TO_APP }}/.
 
     # Push the Docker image to Google Container Registry
     - name: Publish
@@ -68,10 +68,11 @@ jobs:
         docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
 
     # Set up kustomize
-    #- name: Set up Kustomize
-    #  run: |-
-    #    curl -sfLo kustomize https://github.com/kubernetes-sigs/kustomize/releases/download/v3.1.0/kustomize_3.1.0_linux_amd64
-    #    chmod u+x ./kustomize
+    - name: Validate Chart and Testing
+      run: |-
+       helm lint ${{ env.PATH_TO_APP }} 
+       helm install flask-hello-app --dry-run --debug ${{ env.PATH_TO_APP }} --set=image.repository="gcr.io/$PROJECT_ID/$IMAGE" --set=image.tag="$GITHUB_SHA"
+        
 
     # Deploy the Docker image to the GKE cluster
     #- name: Deploy
