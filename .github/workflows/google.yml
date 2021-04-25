@@ -67,11 +67,12 @@ jobs:
       run: |-
         docker push "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA"
 
-    # Set up kustomize
+    # Testing Helm
     - name: Validate Chart and Testing
       run: |-
-       helm lint ${{ env.PATH_TO_APP }} 
-       helm install flask-hello-app --dry-run --debug ${{ env.PATH_TO_APP }} --set=image.repository="gcr.io/$PROJECT_ID/$IMAGE" --set=image.tag="$GITHUB_SHA"
+       ls ${{ env.PATH_TO_APP }}/.
+       helm lint ${{ env.PATH_TO_APP }}/. 
+       helm install flask-hello-app --dry-run --debug ${{ env.PATH_TO_APP }}/. --set=image.repository="gcr.io/$PROJECT_ID/$IMAGE" --set=image.tag="$GITHUB_SHA"
         
 
     # Deploy the Docker image to the GKE cluster
