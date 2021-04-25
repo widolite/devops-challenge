@@ -70,11 +70,15 @@ jobs:
     # Testing Helm
     - name: Validate Chart and Testing
       run: |-
-       ls ${{ env.PATH_TO_APP }}/.
        helm lint ${{ env.PATH_TO_APP }}/. 
        helm install flask-hello-app --dry-run --debug ${{ env.PATH_TO_APP }}/. --set=image.repository="gcr.io/$PROJECT_ID/$IMAGE" --set=image.tag="$GITHUB_SHA"
-        
 
+    # Install/upgrade helm chart
+    - name: Install and Upgrage Helm Chart App.
+      run: |-
+       helm list --all
+        
+ 
     # Deploy the Docker image to the GKE cluster
     #- name: Deploy
     #  run: |-
