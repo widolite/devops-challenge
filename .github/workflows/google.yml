@@ -72,14 +72,10 @@ jobs:
     - name: Validate Chart and Testing
       run: |-
        helm lint ${{ env.PATH_TO_APP }}/. 
-       helm install ${{ env.APP_NAME }} --dry-run --debug ${{ env.PATH_TO_APP }}/. \ 
-        --set=image.repository="gcr.io/$PROJECT_ID/$IMAGE" \ 
-        --set=image.tag="$GITHUB_SHA"
+       helm install ${{ env.APP_NAME }} --dry-run --debug ${{ env.PATH_TO_APP }}/. --set=image.repository="gcr.io/$PROJECT_ID/$IMAGE" --set=image.tag="$GITHUB_SHA"
 
     # Install/upgrade helm chart
     - name: Install and Upgrage Helm Chart App.
       run: |-
        helm list --all
-       helm upgrade --install ${{ env.APP_NAME }} ${{ env.PATH_TO_APP }}/. \
-        --set=image.repository="gcr.io/$PROJECT_ID/$IMAGE" \ 
-        --set=image.tag="$GITHUB_SHA"
+       helm upgrade --install ${{ env.APP_NAME }} ${{ env.PATH_TO_APP }}/. --set=image.repository="gcr.io/$PROJECT_ID/$IMAGE" --set=image.tag="$GITHUB_SHA"
