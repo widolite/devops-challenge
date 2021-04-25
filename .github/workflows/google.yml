@@ -15,7 +15,7 @@ name: Build and Deploy to GKE Flask Hello App.
 on:
   push:
     branches:
-    - master
+    - main
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
