@@ -19,10 +19,11 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GKE_PROJECT }}
-  GKE_CLUSTER: devops-challenge    # TODO: update to cluster name
-  GKE_ZONE: us-central1-c   # TODO: update to cluster zone
+  GKE_CLUSTER: devops-challenge    
+  GKE_ZONE: us-central1-c   
   DEPLOYMENT_NAME: gke-test # TODO: update to deployment name
-  IMAGE: flash-hello-app
+  IMAGE: flask-hello-app
+  APP_NAME: flask-hello-app
   PATH_TO_APP: cicd/python-flask-docker-hello-world
 
 jobs:
@@ -71,18 +72,14 @@ jobs:
     - name: Validate Chart and Testing
       run: |-
        helm lint ${{ env.PATH_TO_APP }}/. 
-       helm install flask-hello-app --dry-run --debug ${{ env.PATH_TO_APP }}/. --set=image.repository="gcr.io/$PROJECT_ID/$IMAGE" --set=image.tag="$GITHUB_SHA"
+       helm install ${{ env.APP_NAME }} --dry-run --debug ${{ env.PATH_TO_APP }}/. \ 
+        --set=image.repository="gcr.io/$PROJECT_ID/$IMAGE" \ 
+        --set=image.tag="$GITHUB_SHA"
 
     # Install/upgrade helm chart
     - name: Install and Upgrage Helm Chart App.
       run: |-
        helm list --all
-        
- 
-    # Deploy the Docker image to the GKE cluster
-    #- name: Deploy
-    #  run: |-
-    #    ./kustomize edit set image gcr.io/PROJECT_ID/IMAGE:TAG=gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA
-    #    ./kustomize build . | kubectl apply -f -
-    #    kubectl rollout status deployment/$DEPLOYMENT_NAME
-    #    kubectl get services -o wide
+       helm upgrade --install ${{ env.APP_NAME }} ${{ env.PATH_TO_APP }}/. \
+        --set=image.repository="gcr.io/$PROJECT_ID/$IMAGE" \ 
+        --set=image.tag="$GITHUB_SHA"
