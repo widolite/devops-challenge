@@ -161,11 +161,11 @@ We need to create the namespace where we gonna deploy our simple go-app.
 ```
 kubectl create ns http-echo-ns
 
-kubectl apply -f ${PATH_TO_PROJECT}/http-echo-deployment.yaml
+kubectl apply -f ${PATH_TO_PROJECT}/k8s/http-echo-deployment.yaml
 
-kubectl apply -f ${PATH_TO_PROJECT}/http-echo-service.yaml
+kubectl apply -f ${PATH_TO_PROJECT}/k8s/http-echo-service.yaml
 
-kubectl apply -f ${PATH_TO_PROJECT}/https-echo-ingress.yaml
+kubectl apply -f ${PATH_TO_PROJECT}/k8s/https-echo-ingress.yaml
 ```
 
 # Git HUB Action CI/CD Section
