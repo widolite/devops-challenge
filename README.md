@@ -210,7 +210,7 @@ And finally just push your changes into the code
 
 # The final result of the project is here auto DNS record and SSL Cert + GitHuB Actions CI/CD.
 
-https://flash-app.uatx.xyz
+https://flask-app.uatx.xyz
 
 # Explanation of the deployment strategy.
 My deployment strategy in this environment would be base in PR (Pull Request), where the developers have to create a new branch and make a Pull Request and the PR have to be view for any of the developers in the teams and made their feedback to the author (if is any) of the PR and then be approved, then be merge into the main branch to trigger the git hub action that will put the app into production. This can be improve a lot.
