@@ -3,8 +3,16 @@ Devops Chanllenge by Crabi.
 #################
 # K8S Section.
 #################
+#
+# You can start by cloning the repo
+#
+cd ${HOME}
+git clone https://github.com/widolite/devops-challenge
+
 ##
-# Very important, "Workload Identity" must be enabled in your cluster before you start, you can do this by creating the cluster with this option set or you can edit, but if you edit your cluster it going to update all nodes, so be ware. 
+# Very important, "Workload Identity" must be enabled in your cluster before you start, 
+# you can do this by creating the cluster with this option set or you can edit, 
+# but if you edit your cluster it going to update all nodes, so be ware. 
 ##
 
 #
