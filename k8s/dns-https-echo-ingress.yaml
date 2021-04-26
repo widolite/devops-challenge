@@ -1,0 +1,22 @@
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: dns-http-echo-ingress
+  namespace: http-echo-ns
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - dns.uatx.xyz
+    secretName: dns-uatx-xyz-tls
+  rules:
+  - host: dns.uatx.xyz
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: http-echo-service
+          servicePort: 8080

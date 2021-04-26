@@ -1,0 +1,45 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: http-echo-app
+  namespace: http-echo-ns
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: http-echo-app
+  template:
+    metadata:
+      labels:
+        app: http-echo-app
+    spec:
+      containers:
+      - image: hashicorp/http-echo
+        name: http-echo-app
+        args:
+        - '-listen=:8080'
+        - '-text="hello world"'
+        ports:
+        - containerPort: 8080
+          name: http-alt
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "50m"
+          limits:
+            memory: "500Mi"
+            cpu: "100m"
+      - image: busybox
+        name: http-echo-app-keep-alive
+        args:
+        - '/bin/sh'
+        - '-c'
+        - 'while true; do wget -nv -O- 127.0.0.1:8080; sleep 30; done;'
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "25m"
+          limits:
+            memory: "256Mi"
+            cpu: "50m"
