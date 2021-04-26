@@ -70,7 +70,7 @@ gcloud iam service-accounts add-iam-policy-binding ${CLOUD_DNS_SA} \
 
 #
 # We are going to create our zone in DNS Cloud. 
-#
+# Put you own dns zone name
 
 export DNS_ZONE_NAME=uatx
 
@@ -103,7 +103,7 @@ gcloud dns record-sets transaction execute --zone ${DNS_ZONE_NAME}
 
 # Apply the following manifest file to deploy external-dns 
 
-kubectl apply -f ${HOME}/cloudns-external-dns.yaml
+kubectl apply -f ${PATH_TO_PROJECT}/cloudns-external-dns.yaml
 
 #
 #Then add the proper workload identity annotation to the cert-manager service account.
@@ -121,8 +121,11 @@ kubectl run -it \
   workload-identity-test
 
 #
-#You are now connected to an interactive shell within the created Pod. Run the following command inside the Pod.
-#If the service accounts are correctly configured, the Google service account email address is listed as the active (and only) identity in our case "CLOUD_DNS_SA" . This demonstrates that by default, the Pod uses the Google service account's authority when calling Google Cloud APIs.
+# You are now connected to an interactive shell within the created Pod. Run the following command inside the Pod.
+# If the service accounts are correctly configured, the Google service account email address is listed as the active (and only)
+# identity in our case "CLOUD_DNS_SA" . This demonstrates that by default, the Pod uses the Google service account's 
+# authority when calling Google Cloud APIs.
+#
 
 gcloud auth list
 
@@ -132,29 +135,36 @@ gcloud auth list
 
 kubectl logs pods external-dns-<this-is-random-numbers-letter> -f -n external-dns
 
-
-
 #
 # Installing Cert-Manager.
 # Install the CustomResourceDefinitions and cert-manager itself:
+#
 
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.3.1/cert-manager.yaml
 
-
+#
 # Download the secret key file for your service account.
+#
+
 gcloud iam service-accounts keys create ${HOME}/key.json \
     --iam-account=$CLOUD_DNS_SA
+#
+# Upload the service account credential to your cluster. This command uses the secret name cloud-dns-key, 
+# but you can choose a different name.
+#
 
-# Upload the service account credential to your cluster. This command uses the secret name cloud-dns-key, but you can choose a different name.
 kubectl create secret generic cloud-dns-key \
     --from-file=key.json=$HOME/key.json -n cert-manager
-
+ 
+#
 # Delete the local secret
+#
 rm ~/key.json
 
 #
-# We need to create the namespace where we gonna deploy our simple app.
+# We need to create the namespace where we gonna deploy our simple go-app.
 #
+
 kubectl create ns http-echo-ns
 
 kubectl apply -f ${PATH_TO_PROJECT}/http-echo-deployment.yaml
@@ -163,16 +173,17 @@ kubectl apply -f ${PATH_TO_PROJECT}/http-echo-service.yaml
 
 kubectl apply -f ${PATH_TO_PROJECT}/https-echo-ingress.yaml
 
-
-
 ######################
 # Git HUB Action CI/CD Section
 ######################
-# The project is run in flask + Python, i worked with python here because i had trouble working with the go app, I didn't want to waste time debugging so I sticked with Python and for the deployment
-# into the K8s cluster I used Helm, it worked like a charm. 
+# The project is run in flask + Python, I worked with python here because I had trouble working with the go app, 
+# I didn't want to waste time debugging, so I sticked with Python, and for the deployment
+# in K8s cluster, I used Helm, it worked like a charm. 
 
+#
 #Enabling the APIs
 #Enable the Kubernetes Engine and Container Registry APIs. For example:
+#
 
 gcloud services enable \
 	containerregistry.googleapis.com \
@@ -185,7 +196,9 @@ gcloud iam service-accounts create $CLOUD_K8S_SA
 
 export CLOUD_K8S_SA=${CLOUD_K8S_SA}@${PROJECT_NAME}.iam.gserviceaccount.com
 
+#
 #Add roles to the service account. if when you run your github action it ask for permission, recreate this role in the portal.
+#
 
 gcloud projects add-iam-policy-binding $PROJECT_NAME \
   --member=serviceAccount:$CLOUD_K8S_SA \
@@ -195,12 +208,14 @@ gcloud projects add-iam-policy-binding $PROJECT_NAME \
 
 gcloud iam service-accounts keys create key.json --iam-account=$CLOUD_K8S_SA
 
+#
 #We need to convert this key.json in base64 and adding into the Environments Secrets in Git Hub in Environments Production's.  
+#
 
 cat key.json | base64
 
 # You need to do this in GitHUB.
-# I just add this 2 secrets in settings > Environments > production.
+# I just add this two secrets in settings > Environments > production.
 # if the environments dint's exists, create a new one and add the vars.
 # GKE_PROJECT
 # GKE_SA_KEY = < here put your key in base64 format into the git hub >
@@ -212,4 +227,4 @@ https://flash-app.uatx.xyz
 # Explanation of the deployment strategy.
 # My deployment strategy in this environment would be base in PR (Pull Request), where the developers have to create a new branch 
 # and make a Pull Request and the PR have to be view for any of the developers in the teams and made their feedback to the author (if is any) of the PR and then be approved,  then be merge 
-# into the main branch to trigger the git hub action that will put the app into production. This can be improve a lot but the time is short. 
+# into the main branch to trigger the git hub action that will put the app into production. This can be improve a lot.
